@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package sample;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MessageOptions {
+    int32 my_message_option = 50001;
+}
+
+message Empty {
+    bool really = 1;
+}
