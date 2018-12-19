@@ -150,8 +150,6 @@ tasks.withType<JavaCompile> {
 val devHost: String? by project
 
 kotlin {
-    experimental.coroutines = Coroutines.ENABLE
-
     targets.add(presets["jvm"].createTarget("jvm"))
     targets.add(presets["js"].createTarget("nodejs").apply {
        (tasks[compilations["main"].compileKotlinTaskName] as Kotlin2JsCompile).kotlinOptions.moduleKind = "umd"
@@ -177,7 +175,7 @@ kotlin {
 //                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-common");
                     implementation("com.soywiz:klock:1.0.0")
 //                implementation("io.github.microutils:kotlin-logging-common:1.6.22")
-                    implementation("io.github.kmulti:kmulti-bignumber-common")
+//                    implementation("io.github.kmulti:kmulti-bignumber-common")
                     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 //                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
@@ -195,37 +193,38 @@ kotlin {
             }
 
             val commonTest = getByName("commonTest") {
-//                compileKotlinNodejs  dependencies {
-//                    implementation("org.jetbrains.kotlin:kotlin-test-common")
-//                    implementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
-//                }
+                dependencies {
+                    implementation("org.jetbrains.kotlin:kotlin-test-common")
+                    implementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
+                }
             }
 
-//            val allJvmMain = create("allJvmMain") {
-//                //            kotlinOptions.jvmTarget= 1.8
-//                dependencies {
-//                    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-////                implementation("io.github.microutils:kotlin-logging:1.6.22")
-//                    implementation("io.github.kmulti:kmulti-bignumber-jvm:1.2.41.2")
-//                }
-//            }
-////        configure(listOf(getByName("jvmMain"), getByName("androidMain"))) {
-////            dependsOn(allJvmMain)
-////        }
-//
-//            val allJvmTest = create("allJvmTest") {
-//                dependencies {
-//                    implementation("org.jetbrains.kotlin:kotlin-test")
-//                }
-//            }
-//
-//        configure(listOf(getByName("jvmTest"), getByName("androidTest"))) {
-//            dependsOn(allJvmTest)
-//
-//            dependencies {
-//                implementation("org.jetbrains.kotlin:kotlin-test-junit")
-//            }
-//        }
+        val allJvmMain = create("allJvmMain") {
+            //            kotlinOptions.jvmTarget= 1.8
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+//                implementation("io.github.microutils:kotlin-logging:1.6.22")
+                implementation("io.github.kmulti:kmulti-bignumber-jvm:1.2.41.2")
+            }
+        }
+
+        configure(listOf(getByName("jvmMain")/*, getByName("androidMain")*/)) {
+            dependsOn(allJvmMain)
+        }
+
+            val allJvmTest = create("allJvmTest") {
+                dependencies {
+                    implementation("org.jetbrains.kotlin:kotlin-test")
+                }
+            }
+
+        configure(listOf(getByName("jvmTest")/*, getByName("androidTest")*/)) {
+            dependsOn(allJvmTest)
+
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-test-junit")
+            }
+        }
 
             val allJsMain = create("allJsMain") {
                 dependencies {
@@ -234,50 +233,50 @@ kotlin {
                     implementation("io.github.kmulti:kmulti-bignumber-js:1.2.41.1")
                 }
             }
-//
-//            configure(listOf(getByName("nodejsMain"), getByName("webjsMain"))) {
-//                dependsOn(allJsMain)
-//            }
-//
-//            val allJsTest = create("allJsTest") {
-//                dependencies {
-//                    implementation("org.jetbrains.kotlin:kotlin-test-js")
-//                }
-//            }
-//
-//            configure(listOf(getByName("nodejsTest"), getByName("webjsTest"))) {
-//                dependsOn(allJsTest)
-//            }
-//
-//            val allNativeMain = create("allNativeMain") {
-//                dependsOn(commonMain)
-//                dependencies {
-//                    //                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$runtimeVersion")
-////                api("org.jetbrains.kotlinx:kotlinx-coroutines-core-native:$coroutinesVersion")
-//                }
-//            }
-//
-//            getByName("iosSimMain") {
-//                dependsOn(allNativeMain)
-//            }
-//
-//            val allNativeDesktopMain = (devHost?.let { getByName("${it}Main") } ?: create("allNativeDesktopMain")).apply {
-//                dependsOn(allNativeMain)
-//                kotlin.srcDir("src/allNativeDesktopMain/kotlin")
-//            }
-//
-//            configure(listOf(getByName("linuxMain"), getByName("macosMain")) - allNativeDesktopMain) {
-//                dependsOn(allNativeDesktopMain)
-//            }
-//
-//            val allNativeDesktopTest = (devHost?.let { getByName("${it}Test") } ?: create("allNativeDesktopTest")).apply {
-//                dependsOn(commonTest)
-//                kotlin.srcDir("src/allNativeDesktopTegenerateProtost/kotlin")
-//            }
-//
-//            configure(listOf(getByName("linuxTest"), getByName("macosTest")) - allNativeDesktopTest) {
-//                dependsOn(allNativeDesktopTest)
-//            }
+
+            configure(listOf(getByName("nodejsMain"), getByName("webjsMain"))) {
+                dependsOn(allJsMain)
+            }
+
+            val allJsTest = create("allJsTest") {
+                dependencies {
+                    implementation("org.jetbrains.kotlin:kotlin-test-js")
+                }
+            }
+
+            configure(listOf(getByName("nodejsTest"), getByName("webjsTest"))) {
+                dependsOn(allJsTest)
+            }
+
+            val allNativeMain = create("allNativeMain") {
+                dependsOn(commonMain)
+                dependencies {
+                    //                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$runtimeVersion")
+//                api("org.jetbrains.kotlinx:kotlinx-coroutines-core-native:$coroutinesVersion")
+                }
+            }
+
+            getByName("iosSimMain") {
+                dependsOn(allNativeMain)
+            }
+
+            val allNativeDesktopMain = (devHost?.let { getByName("${it}Main") } ?: create("allNativeDesktopMain")).apply {
+                dependsOn(allNativeMain)
+                kotlin.srcDir("src/allNativeDesktopMain/kotlin")
+            }
+
+            configure(listOf(getByName("linuxMain"), getByName("macosMain")) - allNativeDesktopMain) {
+                dependsOn(allNativeDesktopMain)
+            }
+
+            val allNativeDesktopTest = (devHost?.let { getByName("${it}Test") } ?: create("allNativeDesktopTest")).apply {
+                dependsOn(commonTest)
+                kotlin.srcDir("src/allNativeDesktopTest/kotlin")
+            }
+
+            configure(listOf(getByName("linuxTest"), getByName("macosTest")) - allNativeDesktopTest) {
+                dependsOn(allNativeDesktopTest)
+            }
 
     }
 
